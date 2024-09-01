@@ -10,7 +10,7 @@
 #' Prepare objects for a \code{motifmatchr} analysis
 #' 
 #' @param genome character string specifying genome assembly
-#' @param motifs either a character string (currently "jaspar", "jaspar2020", "jaspar_vert" and sets contained in \code{chromVARmotifs} ("homer", "encode", "cisbp") are supported) 
+#' @param motifs either a character string (currently "jaspar2018", "jaspar2020", "jaspar_vert" and sets contained in \code{chromVARmotifs} ("homer", "encode", "cisbp") are supported) 
 #'               or an object containing PWMs that can be used by \code{motifmatchr::matchMotifs} (such as a \code{PFMatrixList} or \code{PWMatrixList} object)
 #' @return a list containing objects to be used as arguments for \code{motifmatchr}
 #' @export
@@ -27,25 +27,25 @@ prepareMotifmatchr <- function(genome, motifs) {
   # get the motif PWMs
   motifL <- TFBSTools::PWMatrixList()
   if (is.character(motifs)) {
-    if (is.element("jaspar", motifs)) {
+	if (is.element("jaspar2020", motifs)) {
+      # Added block for JASPAR2020
+      opts <- list()
+      opts["species"] <- 9606
+      opts["collection"] <- "CORE"
+      # gets the non-redundant set by default
+      mlCur <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
+      if (!isTRUE(all.equal(TFBSTools::name(mlCur), names(mlCur)))) {
+        names(mlCur) <- paste(names(mlCur), TFBSTools::name(mlCur), sep = "_")
+      }
+      motifL <- c(motifL, TFBSTools::toPWM(mlCur))
+    }
+    if (is.element("jaspar2018", motifs)) {
       # copied code from chromVAR, but updated the JASPAR version
       opts <- list()
       opts["species"] <- spec
       opts["collection"] <- "CORE"
       # gets the non-redundant set by default
       mlCur <- TFBSTools::getMatrixSet(JASPAR2018::JASPAR2018, opts)
-      if (!isTRUE(all.equal(TFBSTools::name(mlCur), names(mlCur)))) {
-        names(mlCur) <- paste(names(mlCur), TFBSTools::name(mlCur), sep = "_")
-      }
-      motifL <- c(motifL, TFBSTools::toPWM(mlCur))
-    }
-    if (is.element("jaspar2020", motifs)) {
-      # Added block for JASPAR2020
-      opts <- list()
-      opts["species"] <- spec
-      opts["collection"] <- "CORE"
-      # gets the non-redundant set by default
-      mlCur <- TFBSTools::getMatrixSet(JASPAR2020::JASPAR2020, opts)
       if (!isTRUE(all.equal(TFBSTools::name(mlCur), names(mlCur)))) {
         names(mlCur) <- paste(names(mlCur), TFBSTools::name(mlCur), sep = "_")
       }
